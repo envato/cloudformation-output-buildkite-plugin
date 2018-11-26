@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -euo pipefail
+
+aws_command=("aws" "cloudformation" "describe-stacks")
+jq_query='.Stacks[].Outputs[] | '
+
+BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS=${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS:-''}
+
+if [[ "${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_DEBUG:-false}" =~ (true|on|1) ]] ; then
+  echo "--- :hammer: Enabling debug mode"
+  set -x
+fi
+
+extract_options() {
+  local e=$element
+  IFS=":"
+  set -- $e
+  STACK_NAME=$(echo $1 | tr -d "'")
+  OUTPUT_NAME=$(echo $2 | tr -d "'")
+  AWS_REGION=$(echo $3 | tr -d "'")
+}
+
+aws_cloudformation_output() {
+  jq_query+='select(.OutputKey == "'
+  jq_query+=${OUTPUT_NAME}
+  jq_query+='") | .OutputValue'
+  ${aws_command[@]} | jq $jq_query
+}
+
+set_output_env() {
+  OUTPUT=$(echo "${STACK_NAME}_${OUTPUT_NAME}" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+  RESULT=$(echo ${OUTPUT_RESULTS} | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+  export ${OUTPUT}=${RESULT}
+}
+
+if [[ -n ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS} ]] ; then
+  for element in ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS[*]} ; do
+    unset STACK_NAME OUTPUT_NAME AWS_REGION
+    extract_options
+    aws_command+=("--stack-name" ${STACK_NAME} "--region" ${AWS_REGION})
+    aws_command+=()
+    OUTPUT_RESULTS=$(aws_cloudformation_output)
+    set_output_env
+    echo "Set ${OUTPUT} to ${RESULT}"
+  done
+else
+  echo "🚨: You must supply at least one output to find" >&2
+  exit 1
+fi
