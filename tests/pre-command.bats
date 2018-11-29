@@ -9,11 +9,11 @@ load '/usr/local/lib/bats/load.bash'
 
 setup()
 {
-  export BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS="acloud:a-output:aregion"
+  export BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT="acloud:a-output:aregion"
 }
 
 teardown() {
-  unset BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS
+  unset BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT
 }
 
 @test "Command runs without errors" {
@@ -31,7 +31,7 @@ teardown() {
 }
 
 @test "Command runs errors when no options provided" {
-  unset BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS
+  unset BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT
 
   run "$PWD/hooks/pre-command"
   assert_failure

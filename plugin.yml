@@ -4,9 +4,8 @@ author: https://github.com/envato
 requirements: []
 configuration:
   properties:
-    outputs:
+    output:
       type: array
-  oneOf:
-    required:
-      - outputs
+  required:
+    - output
   additionalProperties: false

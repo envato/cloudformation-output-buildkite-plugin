@@ -5,7 +5,7 @@ set -euo pipefail
 aws_command=("aws" "cloudformation" "describe-stacks")
 jq_query='.Stacks[].Outputs[] | '
 
-BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS=${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS:-''}
+BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT=${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT:-''}
 
 if [[ "${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_DEBUG:-false}" =~ (true|on|1) ]] ; then
   echo "--- :hammer: Enabling debug mode"
@@ -34,8 +34,8 @@ set_output_env() {
   export ${OUTPUT}=${RESULT}
 }
 
-if [[ -n ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS} ]] ; then
-  for element in ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OPTIONS[*]} ; do
+if [[ -n ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT} ]] ; then
+  for element in ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT[*]} ; do
     unset STACK_NAME OUTPUT_NAME AWS_REGION
     extract_options
     aws_command+=("--stack-name" ${STACK_NAME} "--region" ${AWS_REGION})

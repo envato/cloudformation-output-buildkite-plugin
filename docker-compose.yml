@@ -1,6 +1,11 @@
-version: '2'
+version: "3"
 services:
   tests:
-    build: .
+    image: "buildkite/plugin-tester"
     volumes:
-      - ".:/plugin:rw"
+      - ".:/plugin:ro"
+  lint:
+    image: "buildkite/plugin-linter"
+    command: ["--id", "envato/cloudformation-output"]
+    volumes:
+      - ".:/plugin:ro"

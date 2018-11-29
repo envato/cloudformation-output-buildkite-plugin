@@ -7,11 +7,12 @@ and setting as `env` variables
 
 ```yml
 steps:
-  - plugins:
-      envato/cloudformation-output#v1.0.0:
-        output:
-          - mystack:myoutput:region
-          - yourstack:youroutput:region
+  - name: Get Output
+    plugins:
+      - envato/cloudformation-output#v1.0.0:
+          output:
+            - 'mystack:myoutput:region'
+            - 'yourstack:youroutput:region'
 ```
 
 ## Configuration
