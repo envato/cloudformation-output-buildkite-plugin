@@ -9,7 +9,7 @@ and setting as `env` variables
 steps:
   - name: Get Output
     plugins:
-      - envato/cloudformation-output#v1.0.0:
+      - envato/cloudformation-output#v1.0.1:
           output:
             - 'mystack:myoutput:region'
             - 'yourstack:youroutput:region'
