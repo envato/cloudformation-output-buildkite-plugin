@@ -38,9 +38,8 @@ aws_cloudformation_output() {
 }
 
 set_output_env() {
-  OUTPUT=$(echo "${STACK_NAME}_${OUTPUT_NAME}" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
-  RESULT=$(echo ${OUTPUT_RESULTS} | tr '-' '_' | tr '[:lower:]' '[:upper:]')
-  export ${OUTPUT}=${RESULT}
+  OUTPUT_KEY=$(echo "${STACK_NAME}_${OUTPUT_NAME}" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+  export "${OUTPUT_KEY}"="${OUTPUT_RESULT}"
 }
 
 if [[ "${#CF_OUTPUTS[@]}" -gt 0 ]] ; then
