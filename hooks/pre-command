@@ -7,6 +7,14 @@ jq_query='.Stacks[].Outputs[] | '
 
 BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT=${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT:-''}
 
+CF_OUTPUTS=()
+
+while IFS='=' read -r cf_out _ ; do
+  if [[ $cf_out =~ ^(BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT_[0-9]+) ]] ; then
+    CF_OUTPUTS+=("${!cf_out}")
+  fi
+done < <(env | sort)
+
 if [[ "${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_DEBUG:-false}" =~ (true|on|1) ]] ; then
   echo "--- :hammer: Enabling debug mode"
   set -x
@@ -15,34 +23,33 @@ fi
 extract_options() {
   local e=$element
   IFS=":"
-  set -- $e
-  STACK_NAME=$(echo $1 | tr -d "'")
-  OUTPUT_NAME=$(echo $2 | tr -d "'")
-  AWS_REGION=$(echo $3 | tr -d "'")
+  # shellcheck disable=SC2086
+  set -- ${e}
+  STACK_NAME=$(echo "$1" | tr -d "'")
+  OUTPUT_NAME=$(echo "$2" | tr -d "'")
+  AWS_REGION=$(echo "$3" | tr -d "'")
 }
 
 aws_cloudformation_output() {
   jq_query+='select(.OutputKey == "'
   jq_query+=${OUTPUT_NAME}
   jq_query+='") | .OutputValue'
-  ${aws_command[@]} | jq $jq_query
+  "${aws_command[@]}" | jq "$jq_query"
 }
 
 set_output_env() {
-  OUTPUT=$(echo "${STACK_NAME}_${OUTPUT_NAME}" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
-  RESULT=$(echo ${OUTPUT_RESULTS} | tr '-' '_' | tr '[:lower:]' '[:upper:]')
-  export ${OUTPUT}=${RESULT}
+  OUTPUT_KEY=$(echo "${STACK_NAME}_${OUTPUT_NAME}" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+  export "${OUTPUT_KEY}"="${OUTPUT_RESULT}"
 }
 
-if [[ -n ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT} ]] ; then
-  for element in ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT[*]} ; do
+if [[ "${#CF_OUTPUTS[@]}" -gt 0 ]] ; then
+  for element in ${CF_OUTPUTS[*]} ; do
     unset STACK_NAME OUTPUT_NAME AWS_REGION
     extract_options
-    aws_command+=("--stack-name" ${STACK_NAME} "--region" ${AWS_REGION})
-    aws_command+=()
-    OUTPUT_RESULTS=$(aws_cloudformation_output)
+    aws_command+=("--stack-name" "${STACK_NAME}" "--region" "${AWS_REGION}")
+    OUTPUT_RESULT=$(aws_cloudformation_output)
     set_output_env
-    echo "Set ${OUTPUT} to ${RESULT}"
+    echo "Set ${OUTPUT_KEY} to ${OUTPUT_RESULT}"
   done
 else
   echo "🚨: You must supply at least one output to find" >&2
