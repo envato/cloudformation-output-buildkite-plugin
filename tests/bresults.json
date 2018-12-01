@@ -1,0 +1,15 @@
+{
+    "Stacks": [
+        {
+            "StackName": "bcloud",
+            "StackStatus": "CREATE_COMPLETE",
+            "Outputs": [
+                {
+                    "OutputKey": "b-output",
+                    "OutputValue": "look-at_b"
+                }
+            ],
+            "EnableTerminationProtection": false
+        }
+    ]
+}

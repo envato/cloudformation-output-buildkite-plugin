@@ -9,3 +9,9 @@ services:
     command: ["--id", "envato/cloudformation-output"]
     volumes:
       - ".:/plugin:ro"
+  shell_check:
+    image: koalaman/shellcheck
+    command: ["--color=always", "hooks/pre-command"]
+    working_dir: /plugin
+    volumes:
+      - ".:/plugin:ro"

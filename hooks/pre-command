@@ -15,17 +15,18 @@ fi
 extract_options() {
   local e=$element
   IFS=":"
-  set -- $e
-  STACK_NAME=$(echo $1 | tr -d "'")
-  OUTPUT_NAME=$(echo $2 | tr -d "'")
-  AWS_REGION=$(echo $3 | tr -d "'")
+  # shellcheck disable=SC2086
+  set -- ${e}
+  STACK_NAME=$(echo "$1" | tr -d "'")
+  OUTPUT_NAME=$(echo "$2" | tr -d "'")
+  AWS_REGION=$(echo "$3" | tr -d "'")
 }
 
 aws_cloudformation_output() {
   jq_query+='select(.OutputKey == "'
   jq_query+=${OUTPUT_NAME}
   jq_query+='") | .OutputValue'
-  ${aws_command[@]} | jq $jq_query
+  "${aws_command[@]}" | jq "$jq_query"
 }
 
 set_output_env() {
@@ -38,11 +39,10 @@ if [[ -n ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT} ]] ; then
   for element in ${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT[*]} ; do
     unset STACK_NAME OUTPUT_NAME AWS_REGION
     extract_options
-    aws_command+=("--stack-name" ${STACK_NAME} "--region" ${AWS_REGION})
-    aws_command+=()
-    OUTPUT_RESULTS=$(aws_cloudformation_output)
+    aws_command+=("--stack-name" "${STACK_NAME}" "--region" "${AWS_REGION}")
+    OUTPUT_RESULT=$(aws_cloudformation_output)
     set_output_env
-    echo "Set ${OUTPUT} to ${RESULT}"
+    echo "Set ${OUTPUT_KEY} to ${OUTPUT_RESULT}"
   done
 else
   echo "🚨: You must supply at least one output to find" >&2

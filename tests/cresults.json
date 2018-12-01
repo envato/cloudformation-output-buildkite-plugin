@@ -1,0 +1,15 @@
+{
+    "Stacks": [
+        {
+            "StackName": "ccloud",
+            "StackStatus": "CREATE_COMPLETE",
+            "Outputs": [
+                {
+                    "OutputKey": "c-output",
+                    "OutputValue": "look-at_c"
+                }
+            ],
+            "EnableTerminationProtection": false
+        }
+    ]
+}
