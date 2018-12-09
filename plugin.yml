@@ -1,5 +1,5 @@
-name: CloudformationOptions
-description: Gather Cloudformation output and export them as env vars
+name: AWS CloudFormation Output
+description: Gather AWS Cloudformation output and export them as env vars
 author: https://github.com/envato
 requirements: []
 configuration:
