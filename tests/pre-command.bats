@@ -30,7 +30,7 @@ setup()
   assert_output --partial "Set BCLOUD_B_OUTPUT to look_at_b"
   assert_output --partial "Set CCLOUD_C_OUTPUT to look_at_c"
 
-#  unstub aws
+  unstub aws
   unstub jq
 }
 
