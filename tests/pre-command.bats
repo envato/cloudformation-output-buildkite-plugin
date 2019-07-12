@@ -20,9 +20,9 @@ setup()
     "cloudformation describe-stacks --stack-name bcloud --region bregion : cat tests/bresults.json" \
     "cloudformation describe-stacks --stack-name ccloud --region cregion : cat tests/cresults.json"
   stub jq \
-    "'.Stacks[].Outputs[] | select(.OutputKey == \"a-output\") | .OutputValue' : echo look_at_me" \
-    "'.Stacks[].Outputs[] | select(.OutputKey == \"b-output\") | .OutputValue' : echo look_at_b" \
-    "'.Stacks[].Outputs[] | select(.OutputKey == \"c-output\") | .OutputValue' : echo look_at_c"
+    "-r '.Stacks[].Outputs[] | select(.OutputKey == \"a-output\") | .OutputValue' : echo look_at_me" \
+    "-r '.Stacks[].Outputs[] | select(.OutputKey == \"b-output\") | .OutputValue' : echo look_at_b" \
+    "-r '.Stacks[].Outputs[] | select(.OutputKey == \"c-output\") | .OutputValue' : echo look_at_c"
 
   run "$PWD/hooks/pre-command"
   assert_success
@@ -30,7 +30,7 @@ setup()
   assert_output --partial "Set BCLOUD_B_OUTPUT to look_at_b"
   assert_output --partial "Set CCLOUD_C_OUTPUT to look_at_c"
 
-#  unstub aws
+  unstub aws
   unstub jq
 }
 

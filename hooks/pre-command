@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-aws_command=("aws" "cloudformation" "describe-stacks")
+describe_command=("aws" "cloudformation" "describe-stacks")
 jq_query='.Stacks[].Outputs[] | '
 
 BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT=${BUILDKITE_PLUGIN_CLOUDFORMATION_OUTPUT_OUTPUT:-''}
@@ -34,7 +34,7 @@ aws_cloudformation_output() {
   jq_query+='select(.OutputKey == "'
   jq_query+=${OUTPUT_NAME}
   jq_query+='") | .OutputValue'
-  "${aws_command[@]}" | jq "$jq_query"
+  "${aws_command[@]}" | jq -r "$jq_query"
 }
 
 set_output_env() {
@@ -44,9 +44,9 @@ set_output_env() {
 
 if [[ "${#CF_OUTPUTS[@]}" -gt 0 ]] ; then
   for element in ${CF_OUTPUTS[*]} ; do
-    unset STACK_NAME OUTPUT_NAME AWS_REGION
+    unset STACK_NAME OUTPUT_NAME AWS_REGION aws_command
     extract_options
-    aws_command+=("--stack-name" "${STACK_NAME}" "--region" "${AWS_REGION}")
+    aws_command=("${describe_command[@]}" "--stack-name" "${STACK_NAME}" "--region" "${AWS_REGION}")
     OUTPUT_RESULT=$(aws_cloudformation_output)
     set_output_env
     echo "Set ${OUTPUT_KEY} to ${OUTPUT_RESULT}"
