@@ -34,7 +34,7 @@ aws_cloudformation_output() {
   jq_query+='select(.OutputKey == "'
   jq_query+=${OUTPUT_NAME}
   jq_query+='") | .OutputValue'
-  "${aws_command[@]}" | jq "$jq_query"
+  "${aws_command[@]}" | jq -r "$jq_query"
 }
 
 set_output_env() {
